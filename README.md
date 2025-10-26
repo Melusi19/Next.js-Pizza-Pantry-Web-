@@ -132,6 +132,7 @@ export const ItemSchema = z.object({
 
 AI conversation link:
 https://chatgpt.com/share/68fde7de-b4a8-800e-85e8-90beb7937009
+https://chatgpt.com/share/68fdea5b-d308-800e-9682-91a746a4925c
 
 🍕 "Stay saucy. Track your toppings efficiently!" 😄
 
