@@ -130,6 +130,10 @@ export const ItemSchema = z.object({
 
 🧾 Export inventory reports (CSV / PDF)
 
+AL conversation links:
+https://chatgpt.com/share/68fde7de-b4a8-800e-85e8-90beb7937009
+
+
 🍕 "Stay saucy. Track your toppings efficiently!" 😄
 
 ---
