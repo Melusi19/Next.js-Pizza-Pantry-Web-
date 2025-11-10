@@ -59,8 +59,10 @@ export async function PUT(
     const validation = updateItemSchema.safeParse(body)
 
     if (!validation.success) {
+
+      const firstError = validation.error.issues[0]
       return NextResponse.json(
-        { error: validation.error.errors[0]?.message || 'Invalid data' },
+        { error: firstError?.message || 'Invalid data' },
         { status: 400 }
       )
     }
@@ -178,4 +180,5 @@ export async function DELETE(
       { status: 500 }
     )
   }
+
 }
