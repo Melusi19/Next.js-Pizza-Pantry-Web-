@@ -41,8 +41,10 @@ export async function POST(req: NextRequest) {
     const validation = createItemSchema.safeParse(body)
 
     if (!validation.success) {
+
+      const firstError = validation.error.issues[0]
       return NextResponse.json(
-        { error: validation.error.errors[0]?.message || 'Invalid data' },
+        { error: firstError?.message || 'Invalid data' },
         { status: 400 }
       )
     }
@@ -83,4 +85,5 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+
 }
