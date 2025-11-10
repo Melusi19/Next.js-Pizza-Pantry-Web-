@@ -6,6 +6,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  images: {
+    domains: ['img.clerk.com'],
+  },
 }
 
 module.exports = nextConfig
