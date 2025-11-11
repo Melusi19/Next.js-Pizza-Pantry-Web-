@@ -1,10 +1,26 @@
 import { Suspense } from 'react'
 import { AuditLogList } from '@/components/audit/audit-log-list'
-import { getAuth } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import clientPromise from '@/lib/mongodb'
+import { ObjectId } from 'mongodb'
 
-async function getAuditLogs(userId: string) {
+interface AuditLogWithItem {
+  _id: string;
+  itemId: string;
+  userId: string;
+  change: number;
+  previousQuantity: number;
+  newQuantity: number;
+  reason?: string;
+  createdAt: string;
+  item?: {
+    name: string;
+    category: string;
+  };
+}
+
+async function getAuditLogs(userId: string): Promise<AuditLogWithItem[]> {
   try {
     const client = await clientPromise
     const db = client.db('pizza-pantry')
@@ -31,11 +47,13 @@ async function getAuditLogs(userId: string) {
         {
           $project: {
             _id: 1,
+            itemId: 1,
             change: 1,
             previousQuantity: 1,
             newQuantity: 1,
             reason: 1,
             createdAt: 1,
+            userId: 1,
             'item.name': 1,
             'item.category': 1
           }
@@ -44,10 +62,18 @@ async function getAuditLogs(userId: string) {
       .toArray()
 
     return auditLogs.map(log => ({
-      ...log,
       _id: log._id.toString(),
+      itemId: log.itemId?.toString() || '',
+      userId: log.userId,
+      change: log.change,
+      previousQuantity: log.previousQuantity,
+      newQuantity: log.newQuantity,
+      reason: log.reason,
       createdAt: log.createdAt.toISOString(),
-      itemId: log.itemId?.toString()
+      item: log.item ? {
+        name: log.item.name,
+        category: log.item.category
+      } : undefined
     }))
   } catch (error) {
     console.error('Error fetching audit logs:', error)
@@ -56,7 +82,7 @@ async function getAuditLogs(userId: string) {
 }
 
 export default async function AuditPage() {
-  const { userId } = getAuth()
+  const { userId } = await auth()
   
   if (!userId) {
     redirect('/')
