@@ -6,17 +6,19 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number, currency: string = 'USD'): string {
+  const safeAmount = typeof amount === 'number' ? amount : 0
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
-  }).format(amount)
+  }).format(safeAmount)
 }
 
 export function formatNumber(number: number, decimals: number = 2): string {
+  const safeNumber = typeof number === 'number' ? number : 0
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(number)
+  }).format(safeNumber)
 }
 
 export function formatDate(date: Date | string, options: Intl.DateTimeFormatOptions = {}): string {
@@ -65,75 +67,21 @@ export function getRelativeTime(date: Date | string): string {
   }
 }
 
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }
-}
-
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args)
-      inThrottle = true
-      setTimeout(() => (inThrottle = false), limit)
-    }
-  }
-}
-
-export function generateId(): string {
-  return `id_${Math.random().toString(36).substr(2, 9)}_${Date.now().toString(36)}`
-}
-
-export function safeJsonParse<T>(jsonString: string, fallback: T): T {
-  try {
-    return JSON.parse(jsonString) as T
-  } catch {
-    return fallback
-  }
-}
-
-export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
-export function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
-}
-
-export function toTitleCase(str: string): string {
-  return str.replace(/\w\S*/g, (txt) => 
-    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-  )
-}
-
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.substr(0, maxLength) + '...'
-}
-
-export function getStockStatus(quantity: number, reorderThreshold: number): {
+export function getStockStatus(quantity: unknown, reorderThreshold: unknown): {
   status: 'out-of-stock' | 'low-stock' | 'in-stock'
   color: string
   text: string
 } {
-  if (quantity === 0) {
+  const safeQuantity = typeof quantity === 'number' ? quantity : 0
+  const safeReorderThreshold = typeof reorderThreshold === 'number' ? reorderThreshold : 0
+  
+  if (safeQuantity === 0) {
     return {
       status: 'out-of-stock',
       color: 'red',
       text: 'Out of Stock'
     }
-  } else if (quantity <= reorderThreshold) {
+  } else if (safeQuantity <= safeReorderThreshold) {
     return {
       status: 'low-stock',
       color: 'yellow',
@@ -148,9 +96,16 @@ export function getStockStatus(quantity: number, reorderThreshold: number): {
   }
 }
 
-export function calculateStockPercentage(quantity: number, reorderThreshold: number): number {
-  const maxQuantity = Math.max(quantity, reorderThreshold * 2)
-  return Math.min((quantity / maxQuantity) * 100, 100)
+export function calculateStockPercentage(quantity: unknown, reorderThreshold: unknown): number {
+  const safeQuantity = typeof quantity === 'number' ? quantity : 0
+  const safeReorderThreshold = typeof reorderThreshold === 'number' ? reorderThreshold : 1
+
+  const maxQuantity = Math.max(safeQuantity, safeReorderThreshold * 2)
+
+  if (maxQuantity === 0) return 0
+
+  const percentage = (safeQuantity / maxQuantity) * 100
+  return Math.min(percentage, 100)
 }
 
 export function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
@@ -219,14 +174,20 @@ export function filterInventoryItems<T extends {
   })
 }
 
-export function calculateTotalInventoryValue(items: Array<{ quantity: number; costPrice: number }>): number {
+export function calculateTotalInventoryValue(items: Array<{ quantity: unknown; costPrice: unknown }>): number {
   return items.reduce((total, item) => {
-    return total + (item.quantity * item.costPrice)
+    const quantity = typeof item.quantity === 'number' ? item.quantity : 0
+    const costPrice = typeof item.costPrice === 'number' ? item.costPrice : 0
+    return total + (quantity * costPrice)
   }, 0)
 }
 
-export function getLowStockItems<T extends { quantity: number; reorderThreshold: number }>(items: T[]): T[] {
-  return items.filter(item => item.quantity <= item.reorderThreshold)
+export function getLowStockItems<T extends { quantity: unknown; reorderThreshold: unknown }>(items: T[]): T[] {
+  return items.filter(item => {
+    const quantity = typeof item.quantity === 'number' ? item.quantity : 0
+    const reorderThreshold = typeof item.reorderThreshold === 'number' ? item.reorderThreshold : 0
+    return quantity <= reorderThreshold
+  })
 }
 
 export function generatePagination(currentPage: number, totalPages: number): (number | string)[] {
@@ -350,14 +311,6 @@ export const utils = {
   formatDate,
   formatDateTime,
   getRelativeTime,
-  debounce,
-  throttle,
-  generateId,
-  safeJsonParse,
-  isValidEmail,
-  capitalize,
-  toTitleCase,
-  truncateText,
   getStockStatus,
   calculateStockPercentage,
   groupBy,
