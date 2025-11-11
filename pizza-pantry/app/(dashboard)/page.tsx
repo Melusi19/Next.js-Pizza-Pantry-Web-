@@ -3,7 +3,7 @@ import { InventoryList } from '@/components/inventory/inventory-list'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AddItemModal } from '@/components/inventory/add-item-modal'
-import { getAuth } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import clientPromise from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
@@ -19,8 +19,14 @@ async function getInventoryItems(userId: string) {
       .toArray()
 
     return items.map(item => ({
-      ...item,
       _id: item._id.toString(),
+      name: item.name,
+      category: item.category,
+      unit: item.unit,
+      quantity: item.quantity,
+      reorderThreshold: item.reorderThreshold,
+      costPrice: item.costPrice,
+      createdBy: item.createdBy,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString()
     }))
@@ -31,7 +37,7 @@ async function getInventoryItems(userId: string) {
 }
 
 export default async function DashboardPage() {
-  const { userId } = getAuth()
+  const { userId } = await auth()
   
   if (!userId) {
     redirect('/')
