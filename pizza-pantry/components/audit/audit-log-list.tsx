@@ -270,8 +270,8 @@ export function AuditLogList({ initialLogs }: AuditLogListProps) {
                     </div>
                     <div>
                       <span className="text-gray-600">Time:</span>
-                      <p className="font-medium" title={formatDate(log.createdAt)}>
-                        {formatRelativeTime(log.createdAt)}
+                      <p className="font-medium" title={formatDate(log.createdAt.toString())}>
+                        {formatRelativeTime(log.createdAt.toString())}
                       </p>
                     </div>
                   </div>
