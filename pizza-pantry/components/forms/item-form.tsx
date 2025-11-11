@@ -39,8 +39,8 @@ export function ItemForm({ initialData, onSubmit, isLoading, submitButton }: Ite
     },
   })
 
-  const quantity = watch('quantity', initialData?.quantity || 0)
-  const reorderThreshold = watch('reorderThreshold', initialData?.reorderThreshold || 0)
+  const quantity = watch('quantity')!
+  const reorderThreshold = watch('reorderThreshold')!
 
   const isLowStock = quantity <= reorderThreshold
   const stockPercentage = reorderThreshold > 0 ? (quantity / reorderThreshold) * 100 : 0
